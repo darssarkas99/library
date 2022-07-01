@@ -1,0 +1,170 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web Storage JSON</title>
+  </head>
+  <style>
+    hr {
+    height: 2px;
+    color: black;
+    background-color: black;
+    width: 95%;
+  }
+  
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    border: 1px solid #ddd;
+  }
+  
+  .contents {
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+  
+  .child-content {
+    border: 2px solid black;
+    padding-bottom: 2%;
+    margin-bottom: 1%;
+  }
+  
+  .form-element {
+    margin: 2%;
+  }
+  
+  .container {
+    width: 50%;
+    height: 40%;
+  }
+  
+  
+  
+  #instructions-list {
+    margin-left: 1%;
+    margin-right: 1%;
+  }
+  </style>
+  <body>
+    <h1 align="center">Penambahan Buku Baru</h1>
+    <div class="contents" align="center">
+      <div class="child-content" id="user-form">
+        <h2>Form isi buku baru</h2>
+        <hr />
+        <form id="form-data-buku">
+          <div class="form-element">
+            <label for="judul">judul buku:</label><br />
+            <input
+              id="judul"
+              type="text"
+              name="judul"
+              placeholder="judul buku"
+              value=""
+            /><br />
+          </div>
+          <div class="form-element">
+            <label for="jenis">jenis buku:</label><br />
+            <input
+              id="jenis"
+              type="text"
+              name="jenis"
+              placeholder="jenis buku"
+              value=""
+            /><br />
+          </div>
+          <div class="form-element">
+            <input id="submitButton" type="submit" value="Submit Data" />
+          </div>
+        </form>
+      </div>
+
+      <div class="container">
+        <div class="child-content" id="filsafat-list">
+          <h2>penambahan Buku baru</h2>
+          <hr />
+          <table id="user-list-table">
+            <thead>
+              <tr>
+                <th>judul buku</th>
+                <th>jenis buku</th>
+              </tr>
+            </thead>
+
+            <tbody id="user-list-detail" align="center"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const storageKey = "STORAGE_KEY";
+      const submitAction = document.getElementById("form-data-guru");
+
+      function checkForStorage() {
+        return typeof Storage !== "undefined";
+      }
+
+      function putBookList(data) {
+        if (checkForStorage()) {
+          let bookData = [];
+          if (localStorage.getItem(storageKey) !== null) {
+            bookData = JSON.parse(localStorage.getItem(storageKey));
+          }
+
+          bookData.unshift(data);
+          if (bookData.length > 5) {
+            bookData.pop();
+          }
+
+          localStorage.setItem(storageKey, JSON.stringify(bookData));
+        }
+      }
+      function getBookList() {
+        if (checkForStorage()) {
+          return JSON.parse(localStorage.getItem(storageKey)) || [];
+        } else {
+          return [];
+        }
+      }
+
+      function renderBookList() {
+        const bookData = getBookList();
+        const bookList = document.querySelector("#user-list-detail");
+
+        bookList.innerHTML = "";
+        for (let book of bookData) {
+          let row = document.createElement("tr");
+          row.innerHTML = "<td>" + book.judul + "</td>";
+          row.innerHTML += "<td>" + book.jenis + "</td>";
+
+          bookList.appendChild(row);
+        }
+      }
+
+      //letak error dibagian submitAction
+      submitAction.addEventListener("submit", function (event) {
+        const inputJudul = document.getElementById("judul").value;
+        const inputJenis = document.getElementById("jenis").value;
+        const newBookData = {
+          judul: inputJudul,
+          jenis: inputJenis,
+        };
+
+        putBookList(newBookData);
+        renderBookList();
+      });
+
+      window.addEventListener("load", function () {
+        if (checkForStorage) {
+          if (localStorage.getItem(storageKey) !== null) {
+            renderBookList();
+          }
+        } else {
+          alert("browser yang anda gunakan tidak mendukung web storage");
+        }
+      });
+    </script>
+  </body>
+</html>
